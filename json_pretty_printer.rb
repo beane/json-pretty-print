@@ -1,4 +1,4 @@
-class JSONParser
+class JSONPrinter
   attr_reader :string, :num_tabs
 
   def initialize(string)
@@ -104,7 +104,7 @@ class JSONChar
 end
 
 if __FILE__ == $PROGRAM_NAME
-  parser = JSONParser.new ENV['json']
-  parser.pretty_print
+  printer = JSONPrinter.new ENV['json']
+  printer.pretty_print
 end
 
