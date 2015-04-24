@@ -1,8 +1,6 @@
 class JSONPrinter
   attr_reader :string, :num_tabs
 
-  SPACE_KILLER_REGEX = /\s*([:,{}\[\]])\s*/
-
   def initialize(string)
     raise ArgumentError.new("cannot parse nil") if string.nil?
     @string = string
@@ -13,14 +11,17 @@ class JSONPrinter
     print JSONChar::NEWLINE
 
     is_special = false
-    string.gsub(SPACE_KILLER_REGEX, '\1').each_char do |c|
-      char = JSONChar.new(c, is_special)
+    is_quoted = false
+    string.each_char do |c|
+      char = JSONChar.new(c, is_special: is_special, is_quoted: is_quoted)
 
       if char.is_escape?
         is_special = true
         next
       end
 
+      next if char.char =~ /\s/ && !is_quoted
+      is_quoted = !is_quoted if char.char == JSONChar::QUOTE
       @num_tabs += 1 if char.is_open?
       @num_tabs -= 1 if char.is_closed?
 
@@ -32,35 +33,36 @@ class JSONPrinter
 end
 
 class JSONChar
-  attr_reader :char
-  attr_accessor :is_special
+  attr_reader :char, :is_special, :is_quoted
 
   TAB = "  "
   NEWLINE = "\n"
+  QUOTE = "\""
   OPEN_BRACE = "{"
   CLOSED_BRACE = "}"
   OPEN_BRACKET = "["
   CLOSED_BRACKET = "]"
 
-  def initialize(char, is_special=false)
+  def initialize(char, options={})
     @char = char
-    @is_special = is_special
+    @is_special = options[:is_special]
+    @is_quoted = options[:is_quoted]
   end
 
   def is_open_brace?
-    char == OPEN_BRACE && !is_special
+    char == OPEN_BRACE && !is_special && !is_quoted
   end
 
   def is_closed_brace?
-    char == CLOSED_BRACE && !is_special
+    char == CLOSED_BRACE && !is_special && !is_quoted
   end
 
   def is_open_bracket?
-    char == OPEN_BRACKET && !is_special
+    char == OPEN_BRACKET && !is_special && !is_quoted
   end
 
   def is_closed_bracket?
-    char == CLOSED_BRACKET && !is_special
+    char == CLOSED_BRACKET && !is_special && !is_quoted
   end
 
   def is_escape?
@@ -68,7 +70,7 @@ class JSONChar
   end
 
   def is_comma?
-    char == "," && !is_special
+    char == "," && !is_special && !is_quoted
   end
 
   def is_newline?
