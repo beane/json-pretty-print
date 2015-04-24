@@ -14,7 +14,7 @@ class JSONPrinter
     is_special = false
     is_quoted = false
     string.each_char do |c|
-      char = JSONChar.new(c, is_special: is_special, is_quoted: is_quoted)
+      char = JSONChar.new(c, :is_special => is_special, :is_quoted => is_quoted)
 
       if char.is_escape?
         is_special = true
