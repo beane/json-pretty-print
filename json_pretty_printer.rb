@@ -1,7 +1,7 @@
 class JSONPrinter
   attr_reader :string, :num_tabs
 
-  SPACE_KILLER_REGEX = /([,{}\[\]])\s*/
+  SPACE_KILLER_REGEX = /\s*([:,{}\[\]])\s*/
 
   def initialize(string)
     raise ArgumentError.new("cannot parse nil") if string.nil?
