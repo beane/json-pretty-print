@@ -1,7 +1,7 @@
-# JSON Parser
+# JSON Pretty Printer
 :-)
 
 ## Usage
-`echo "some json" | ./json_parser.sh`
+`echo "some json" | ./json_pretty_print.sh`
 or
-`./json_parser.sh filename`
+`./json_pretty_print.sh filename`
