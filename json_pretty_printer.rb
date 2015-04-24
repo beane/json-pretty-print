@@ -10,6 +10,8 @@ class JSONPrinter
   end
 
   def pretty_print
+    print JSONChar::NEWLINE
+
     is_special = false
     string.gsub(SPACE_KILLER_REGEX, '\1').each_char do |c|
       char = JSONChar.new(c, is_special)
