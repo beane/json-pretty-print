@@ -1,6 +1,8 @@
 class JSONPrinter
   attr_reader :string, :num_tabs
 
+  SPACE_KILLER_REGEX = /([,{}\[\]])\s*/
+
   def initialize(string)
     raise ArgumentError.new("cannot parse nil") if string.nil?
     @string = string
@@ -9,7 +11,7 @@ class JSONPrinter
 
   def pretty_print
     is_special = false
-    string.each_char do |c|
+    string.gsub(SPACE_KILLER_REGEX, '\1').each_char do |c|
       char = JSONChar.new(c, is_special)
 
       if char.is_escape?
