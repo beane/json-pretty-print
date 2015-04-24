@@ -94,9 +94,8 @@ class JSONChar
       print NEWLINE
       print TAB * num_tabs
       print char
-      print TAB * num_tabs
     elsif is_comma?
-      print ","
+      print char
       print NEWLINE
       print TAB * num_tabs
     else
