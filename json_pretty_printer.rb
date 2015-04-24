@@ -21,7 +21,12 @@ class JSONPrinter
         next
       end
 
-      next if char.char =~ /\s/ && !is_quoted
+      if char.is_whitespace? && !is_quoted
+        is_escaped = false
+        is_quoted = false
+        next
+      end
+
       is_quoted = !is_quoted if char.char == JSONChar::QUOTE
       @num_tabs += 1 if char.is_open?
       @num_tabs -= 1 if char.is_closed?
@@ -80,6 +85,17 @@ class JSONChar
 
   def is_tab?
     char == "t" && is_escaped && !is_quoted
+  end
+
+  def is_return?
+    char =="r" && is_escaped && !is_quoted
+  end
+
+  def is_whitespace?
+    char =~ /\s/ ||
+      is_tab? ||
+      is_newline? ||
+      is_return?
   end
 
   def is_open?
