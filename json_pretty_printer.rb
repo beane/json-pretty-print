@@ -11,13 +11,13 @@ class JSONPrinter
   def pretty_print
     print JSONChar::NEWLINE
 
-    is_special = false
+    is_escaped = false
     is_quoted = false
     string.each_char do |c|
-      char = JSONChar.new(c, :is_special => is_special, :is_quoted => is_quoted)
+      char = JSONChar.new(c, :is_escaped => is_escaped, :is_quoted => is_quoted)
 
-      if char.is_escape?
-        is_special = true
+      if char.is_backslash? && !is_quoted
+        is_escaped = true
         next
       end
 
@@ -27,14 +27,14 @@ class JSONPrinter
       @num_tabs -= 1 if char.is_closed?
 
       char.print_with num_tabs
-      is_special = false
+      is_escaped = false
     end
     print JSONChar::NEWLINE
   end
 end
 
 class JSONChar
-  attr_reader :char, :is_special, :is_quoted
+  attr_reader :char, :is_escaped, :is_quoted
 
   TAB = "  "
   NEWLINE = "\n"
@@ -46,40 +46,40 @@ class JSONChar
 
   def initialize(char, options={})
     @char = char
-    @is_special = options[:is_special]
-    @is_quoted = options[:is_quoted]
+    @is_quoted = options[:is_quoted] || false
+    @is_escaped = options[:is_escaped] || false
   end
 
   def is_open_brace?
-    char == OPEN_BRACE && !is_special && !is_quoted
+    char == OPEN_BRACE && !is_escaped && !is_quoted
   end
 
   def is_closed_brace?
-    char == CLOSED_BRACE && !is_special && !is_quoted
+    char == CLOSED_BRACE && !is_escaped && !is_quoted
   end
 
   def is_open_bracket?
-    char == OPEN_BRACKET && !is_special && !is_quoted
+    char == OPEN_BRACKET && !is_escaped && !is_quoted
   end
 
   def is_closed_bracket?
-    char == CLOSED_BRACKET && !is_special && !is_quoted
+    char == CLOSED_BRACKET && !is_escaped && !is_quoted
   end
 
-  def is_escape?
-    char == "\\" && !is_special
+  def is_backslash?
+    char == "\\" && !is_escaped
   end
 
   def is_comma?
-    char == "," && !is_special && !is_quoted
+    char == "," && !is_escaped && !is_quoted
   end
 
   def is_newline?
-    char == "n" && is_special
+    char == "n" && is_escaped && !is_quoted
   end
 
   def is_tab?
-    char == "t" && is_special
+    char == "t" && is_escaped && !is_quoted
   end
 
   def is_open?
@@ -103,6 +103,10 @@ class JSONChar
       print char
       print NEWLINE
       print TAB * num_tabs
+    elsif is_newline?
+      print NEWLINE
+    elsif is_tab?
+      print TAB
     else
       print char
     end
