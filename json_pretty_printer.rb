@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 class JSONPrinter
   attr_reader :string, :num_tabs
 
@@ -109,7 +110,7 @@ class JSONChar
 end
 
 if __FILE__ == $PROGRAM_NAME
-  printer = JSONPrinter.new ENV['json']
+  printer = JSONPrinter.new $stdin.read
   printer.pretty_print
 end
 
