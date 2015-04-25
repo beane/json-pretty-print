@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+
 class JSONPrinter
   attr_reader :string, :num_tabs
 
@@ -15,25 +16,22 @@ class JSONPrinter
     is_quoted = false
     string.each_char do |c|
       char = JSONChar.new(c, :is_escaped => is_escaped, :is_quoted => is_quoted)
-
-      if char.is_backslash? && !is_quoted
+      if char.is_backslash?
         is_escaped = true
         next
       end
 
-      if char.is_whitespace? && !is_quoted
-        is_escaped = false
-        is_quoted = false
-        next
+      if char.is_quote?
+        is_quoted = !is_quoted
       end
 
-      is_quoted = !is_quoted if char.char == JSONChar::QUOTE
       @num_tabs += 1 if char.is_open?
       @num_tabs -= 1 if char.is_closed?
 
       char.print_with num_tabs
       is_escaped = false
     end
+
     print JSONChar::NEWLINE
   end
 end
@@ -48,6 +46,25 @@ class JSONChar
   CLOSED_BRACE = "}"
   OPEN_BRACKET = "["
   CLOSED_BRACKET = "]"
+  BACKSLASH = "\\"
+  COMMA = ","
+  COLON = ":"
+
+  OPEN_CHARS = [
+    OPEN_BRACE,
+    OPEN_BRACKET
+  ]
+
+  CLOSED_CHARS = [
+    CLOSED_BRACE,
+    CLOSED_BRACKET
+  ]
+
+  CONTROL_CHARS = [
+    COMMA,
+    QUOTE,
+    COLON
+  ] + CLOSED_CHARS + OPEN_CHARS
 
   def initialize(char, options={})
     @char = char
@@ -55,77 +72,56 @@ class JSONChar
     @is_escaped = options[:is_escaped] || false
   end
 
-  def is_open_brace?
-    char == OPEN_BRACE && !is_escaped && !is_quoted
-  end
-
-  def is_closed_brace?
-    char == CLOSED_BRACE && !is_escaped && !is_quoted
-  end
-
-  def is_open_bracket?
-    char == OPEN_BRACKET && !is_escaped && !is_quoted
-  end
-
-  def is_closed_bracket?
-    char == CLOSED_BRACKET && !is_escaped && !is_quoted
-  end
-
-  def is_backslash?
-    char == "\\" && !is_escaped
-  end
-
-  def is_comma?
-    char == "," && !is_escaped && !is_quoted
-  end
-
-  def is_newline?
-    char == "n" && is_escaped && !is_quoted
-  end
-
-  def is_tab?
-    char == "t" && is_escaped && !is_quoted
-  end
-
-  def is_return?
-    char =="r" && is_escaped && !is_quoted
-  end
-
-  def is_whitespace?
-    char =~ /\s/ ||
-      is_tab? ||
-      is_newline? ||
-      is_return?
+  def escape(arg)
+    print BACKSLASH
+    print arg
   end
 
   def is_open?
-    is_open_brace? || is_open_bracket?
+    OPEN_CHARS.include?(char) && !is_escaped && !is_quoted
   end
 
   def is_closed?
-    is_closed_brace? || is_closed_bracket?
+    CLOSED_CHARS.include?(char) && !is_escaped && !is_quoted
+  end
+
+  def is_whitespace?
+    return true if ["s", "t", "n", "r"].include?(char) && is_escaped
+    char == " "
+  end
+
+  def is_quote?
+    char == QUOTE && !is_escaped
+  end
+
+  def is_backslash?
+    char == BACKSLASH && !is_escaped
   end
 
   def print_with(num_tabs)
-    if is_open?
-      print char
-      print NEWLINE
-      print TAB * num_tabs
-    elsif is_closed?
-      print NEWLINE
-      print TAB * num_tabs
-      print char
-    elsif is_comma?
-      print char
-      print NEWLINE
-      print TAB * num_tabs
-    elsif is_newline?
-      print NEWLINE
-    elsif is_tab?
-      print TAB
+    # strips out illegal noise and whitespace between control chars
+    return if !is_quoted && !CONTROL_CHARS.include?(char)
+
+    if is_escaped
+      escape(char)
+    elsif !is_escaped && !is_quoted
+      if (OPEN_CHARS + [COMMA]).include? char
+        print char
+        print NEWLINE
+        print TAB * num_tabs
+      elsif CLOSED_CHARS.include? char
+        print NEWLINE
+        print TAB * num_tabs
+        print char
+      else
+        print char
+      end
     else
+      # if the character is in quotes and not escaped
       print char
     end
+
+    nil
   end
 end
 
