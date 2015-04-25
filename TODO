@@ -1,0 +1,4 @@
+* actually make the program be a stream
+* stop deleting raw numbers
+* find a way to capture null
+
