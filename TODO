@@ -1,4 +1,5 @@
 * actually make the program be a stream
-* stop deleting raw numbers
+* find a way to handle floats
 * find a way to capture null
+* find a way to capture booleans
 

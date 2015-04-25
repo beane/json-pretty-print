@@ -16,6 +16,7 @@ class JSONPrinter
     is_quoted = false
     string.each_char do |c|
       char = JSONChar.new(c, :is_escaped => is_escaped, :is_quoted => is_quoted)
+
       if char.is_backslash?
         is_escaped = true
         next
@@ -98,7 +99,12 @@ class JSONChar
     char == BACKSLASH && !is_escaped
   end
 
+  def is_numeric?
+    char =~ /[0-9]/ && !is_escaped
+  end
+
   def print_with(num_tabs)
+    return print char if !is_quoted && is_numeric?
     # strips out illegal noise and whitespace between control chars
     return if !is_quoted && !CONTROL_CHARS.include?(char)
 
