@@ -1,7 +1,5 @@
-# JSON Pretty Printer
+### JSON Pretty Printer
 :-)
 
-## Usage
+### Usage
 `echo "some json" | ./json_pretty_printer.rb`
-or
-`./json_pretty_printer.rb filename`
