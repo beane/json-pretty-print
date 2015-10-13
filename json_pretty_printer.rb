@@ -1,42 +1,5 @@
 #!/usr/bin/env ruby
 
-class JSONPrinter
-  attr_reader :string, :num_tabs
-
-  def initialize(string)
-    raise ArgumentError.new("cannot parse nil") if string.nil?
-    @string = string
-    @num_tabs = 0
-  end
-
-  def pretty_print
-    print JSONChar::NEWLINE
-
-    is_escaped = false
-    is_quoted = false
-    string.each_char do |c|
-      char = JSONChar.new(c, :is_escaped => is_escaped, :is_quoted => is_quoted)
-
-      if char.is_backslash?
-        is_escaped = true
-        next
-      end
-
-      if char.is_quote?
-        is_quoted = !is_quoted
-      end
-
-      @num_tabs += 1 if char.is_open?
-      @num_tabs -= 1 if char.is_closed?
-
-      char.print_with num_tabs
-      is_escaped = false
-    end
-
-    print JSONChar::NEWLINE
-  end
-end
-
 class JSONChar
   attr_reader :char, :is_escaped, :is_quoted
 
@@ -132,7 +95,32 @@ class JSONChar
 end
 
 if __FILE__ == $PROGRAM_NAME
-  printer = JSONPrinter.new $stdin.read
-  printer.pretty_print
+  num_tabs = 0
+  print JSONChar::NEWLINE
+
+  is_escaped = false
+  is_quoted = false
+  ARGF.each_line do |line|
+    line.each_char do |c|
+      char = JSONChar.new(c, :is_escaped => is_escaped, :is_quoted => is_quoted)
+
+      if char.is_backslash?
+        is_escaped = true
+        next
+      end
+
+      if char.is_quote?
+        is_quoted = !is_quoted
+      end
+
+      num_tabs += 1 if char.is_open?
+      num_tabs -= 1 if char.is_closed?
+
+      char.print_with num_tabs
+      is_escaped = false
+    end
+
+    print JSONChar::NEWLINE
+  end
 end
 
