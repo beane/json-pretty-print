@@ -6,3 +6,13 @@ Sometimes I have to work with janky JSON-like objects that aren't quite valid JS
 
 ### Usage
 `cat ./test.json | ./json_pretty_printer.rb`
+
+### Known Bugs
+Since it takes data as a stream, it's harder to make sure that all special non-quoted values are correct (true, false, null, and numbers).
+
+It will miss decimal points in numbers:
+  - `12.34` will be printed as `1234`
+
+It will take values that look like true/false/null:
+  - `loltruethy` will be printed as `true`
+
