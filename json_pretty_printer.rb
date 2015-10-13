@@ -94,6 +94,20 @@ class JSONChar
   end
 end
 
+def find_match_indexes(line, regex)
+  matches = []
+  offset = 0
+  while offset <= line.length do
+    if index = (line.index(regex, offset))
+      matches << index
+      offset = index + 1
+      next
+    end
+    offset += 1
+  end
+  matches
+end
+
 if __FILE__ == $PROGRAM_NAME
   num_tabs = 0
   print JSONChar::NEWLINE
@@ -101,7 +115,37 @@ if __FILE__ == $PROGRAM_NAME
   is_escaped = false
   is_quoted = false
   ARGF.each_line do |line|
-    line.each_char do |c|
+    # handle special words - null/true/false
+    skip = 0
+    null_indexes = find_match_indexes(line, /null/)
+    true_indexes = find_match_indexes(line, /true/)
+    false_indexes = find_match_indexes(line, /false/)
+
+    line.each_char.with_index do |c, index|
+      if skip > 0
+        skip -= 1
+        next
+      end
+
+      if null_indexes.include? index
+        print 'null'
+        skip = 3
+        next
+      end
+
+      if true_indexes.include? index
+        print 'true'
+        skip = 3
+        next
+      end
+
+      if false_indexes.include? index
+        print 'false'
+        skip = 4
+        next
+      end
+      # special words taken care of - resume regular parsing
+
       char = JSONChar.new(c, :is_escaped => is_escaped, :is_quoted => is_quoted)
 
       if char.is_backslash?
