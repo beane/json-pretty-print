@@ -16,3 +16,8 @@ It will miss decimal points in numbers:
 It will take values that look like true/false/null:
   - `loltruethy` will be printed as `true`
 
+### JSON Pretty Printer will *NOT*
+- validate your input
+- break on invalid json
+- hurt your feelings
+
