@@ -3,7 +3,7 @@
 class JSONChar
   attr_reader :char, :is_escaped, :is_quoted
 
-  TAB = "  "
+  TAB = "    "
   NEWLINE = "\n"
   QUOTE = "\""
   OPEN_BRACE = "{"
