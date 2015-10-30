@@ -10,11 +10,10 @@ Sometimes I have to work with janky JSON-like objects that aren't quite valid JS
 ### Known Bugs
 Since it takes data as a stream, it's harder to make sure that all special non-quoted values are correct (true, false, null, and numbers).
 
-It will miss decimal points in numbers:
-  - `12.34` will be printed as `1234`
+~~It will miss decimal points in numbers~~
 
 It will take values that look like true/false/null:
-  - `loltruethy` will be printed as `true`
+    - `loltruethy` will be printed as `true`
 
 ### JSON Pretty Printer will *NOT*
 - validate your input
