@@ -67,8 +67,8 @@ class JSONChar
   end
 
   def print_with(num_tabs)
-    return if is_whitespace? && !is_quoted
-    return print char if !is_quoted && is_numeric?
+    return if is_whitespace? && !is_quoted # ignore non-quoted whitespace
+    return print char if is_numeric? && !is_quoted
     return print "#{char} " if char == COLON && !is_escaped && !is_quoted
     # strips out illegal noise and whitespace before/between/after control chars
     # return if !is_quoted && !CONTROL_CHARS.include?(char)
@@ -97,13 +97,26 @@ class JSONChar
 end
 
 if __FILE__ == $PROGRAM_NAME
-  num_tabs = 0
   print JSONChar::NEWLINE
 
+  num_tabs = 0
   is_escaped = false
   is_quoted = false
+  json_started = false
   ARGF.each_char do |c|
-    char = JSONChar.new(c, :is_escaped => is_escaped, :is_quoted => is_quoted)
+    # a little hack to print out non-json before
+    # the json object is given
+    # useful for curl headers when the response is JSON
+    json_started = true if c == JSONChar::OPEN_BRACE
+    if !json_started
+      print c
+      next
+    end
+
+    char = JSONChar.new(c, {
+      :is_escaped => is_escaped,
+      :is_quoted => is_quoted
+    })
 
     if char.is_backslash?
       is_escaped = true
