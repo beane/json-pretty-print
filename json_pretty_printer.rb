@@ -63,7 +63,7 @@ class JSONChar
   end
 
   def is_numeric?
-    char =~ /[0-9]/ && !is_escaped
+    char =~ /[\.0-9]/ && !is_escaped
   end
 
   def print_with(num_tabs)
