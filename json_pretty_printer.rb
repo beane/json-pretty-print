@@ -67,9 +67,11 @@ class JSONChar
   end
 
   def print_with(num_tabs)
+    return if is_whitespace? && !is_quoted
     return print char if !is_quoted && is_numeric?
-    # strips out illegal noise and whitespace between control chars
-    return if !is_quoted && !CONTROL_CHARS.include?(char)
+    return print "#{char} " if char == COLON && !is_escaped && !is_quoted
+    # strips out illegal noise and whitespace before/between/after control chars
+    # return if !is_quoted && !CONTROL_CHARS.include?(char)
 
     if is_escaped
       escape(char)
