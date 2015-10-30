@@ -1,1 +1,1 @@
-{"key1":"value1","key2":[null, true,false,{"this":"that","nested":{"do" : "you doubt me!?"}]}}
+{"key1":"v:alue1","key2":[notanull, truethy,falsey, [ true, false, n:xull], {"this":"that","nested":{"do" : "you doubt:me!?"}]}, "number" : 13.34 }

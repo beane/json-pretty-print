@@ -7,13 +7,14 @@ Sometimes I have to work with janky JSON-like objects that aren't quite valid JS
 ### Usage
 `cat ./test.json | ./json_pretty_printer.rb`
 
-### Known Bugs
-Since it takes data as a stream, it's harder to make sure that all special non-quoted values are correct (true, false, null, and numbers).
+### Notes
+Since it takes data as a stream, it's harder to make sure that all special non-quoted values are correct (true, false, null, and numbers). This project doesn't even bother - it will print what you give it. It will only attempt to prettify the output by assuming that the format is JSON-like.
 
-~~It will miss decimal points in numbers~~
+It will not corrupt valid JSON - just reformat it. The printer will suppress printing non-quoted whitespace.
 
-It will take values that look like true/false/null:
-    - `loltruethy` will be printed as `true`
+I gladly except pull requests!
+
+And, as always, use at your own risk.
 
 ### JSON Pretty Printer will *NOT*
 - validate your input
