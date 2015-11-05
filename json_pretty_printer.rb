@@ -108,7 +108,7 @@ if __FILE__ == $PROGRAM_NAME
     # a little hack to print out non-json before
     # the json object is given
     # useful for curl headers when the response is JSON
-    json_started = true if c == JSONChar::OPEN_BRACE
+    json_started = true if JSONChar::OPEN_CHARS.include?(c)
     if !json_started
       print c
       next
