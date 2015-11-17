@@ -97,44 +97,46 @@ class JSONChar
   end
 end
 
-if __FILE__ == $PROGRAM_NAME
-  print JSONChar::NEWLINE
+begin
+  if __FILE__ == $PROGRAM_NAME
+    print JSONChar::NEWLINE
 
-  num_tabs = 0
-  is_escaped = false
-  is_quoted = false
-  json_started = false
-  ARGF.each_char do |c|
-    # a little hack to print out non-json before
-    # the json object is given
-    # useful for curl headers when the response is JSON
-    json_started = true if JSONChar::OPEN_CHARS.include?(c)
-    if !json_started
-      print c
-      next
-    end
-
-    char = JSONChar.new(c, {
-      :is_escaped => is_escaped,
-      :is_quoted => is_quoted
-    })
-
-    if char.is_backslash?
-      is_escaped = true
-      next
-    end
-
-    if char.is_quote?
-      is_quoted = !is_quoted
-    end
-
-    num_tabs += 1 if char.is_open?
-    num_tabs -= 1 if char.is_closed?
-
-    char.print_with num_tabs
+    num_tabs = 0
     is_escaped = false
+    is_quoted = false
+    json_started = false
+    ARGF.each_char do |c|
+      # a little hack to print out non-json before
+      # the json object is given
+      # useful for curl headers when the response is JSON
+      json_started = true if JSONChar::OPEN_CHARS.include?(c)
+      if !json_started
+        print c
+        next
+      end
+
+      char = JSONChar.new(c, {
+        :is_escaped => is_escaped,
+        :is_quoted => is_quoted
+      })
+
+      if char.is_backslash?
+        is_escaped = true
+        next
+      end
+
+      if char.is_quote?
+        is_quoted = !is_quoted
+      end
+
+      num_tabs += 1 if char.is_open?
+      num_tabs -= 1 if char.is_closed?
+
+      char.print_with num_tabs
+      is_escaped = false
+    end
+
+    print JSONChar::NEWLINE
   end
-
-  print JSONChar::NEWLINE
+rescue Errno::EPIPE => e
 end
-
