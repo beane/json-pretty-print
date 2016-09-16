@@ -36,47 +36,50 @@ class JSONChar
     @is_escaped = options[:is_escaped] || false
   end
 
-  def escape(arg)
+  def escape(char)
     print BACKSLASH
-    print arg
+    print char
   end
 
+  def is_escaped?; self.is_escaped; end
+  def is_quoted?; self.is_quoted; end
+
   def is_open?
-    OPEN_CHARS.include?(char) && !is_escaped && !is_quoted
+    OPEN_CHARS.include?(char) && !is_escaped? && !is_quoted?
   end
 
   def is_closed?
-    CLOSED_CHARS.include?(char) && !is_escaped && !is_quoted
+    CLOSED_CHARS.include?(char) && !is_escaped? && !is_quoted?
   end
 
   def is_whitespace?
-    return true if ["s", "t", "n", "r"].include?(char) && is_escaped
+    return true if ["s", "t", "n", "r"].include?(char) && is_escaped?
     char == " "
   end
 
   def is_quote?
-    char == QUOTE && !is_escaped
+    char == QUOTE && !is_escaped?
   end
 
   def is_backslash?
-    char == BACKSLASH && !is_escaped
+    char == BACKSLASH && !is_escaped?
   end
 
   def is_numeric?
-    char =~ /[\.0-9]/ && !is_escaped
+    char =~ /[\.0-9]/ && !is_escaped?
   end
 
   def print_with(num_tabs)
     num_tabs = 0 if num_tabs < 0
-    return if is_whitespace? && !is_quoted # ignore non-quoted whitespace
-    return print "#{char} " if char == COLON && !is_escaped && !is_quoted
+    return if is_whitespace? && !is_quoted? # ignore non-quoted whitespace
+    return print "#{char} " if char == COLON && !is_escaped? && !is_quoted?
     # strips out illegal noise and whitespace before/between/after control chars
-    # return print char if is_numeric? && !is_quoted # preserves numbers
-    # return if !is_quoted && !CONTROL_CHARS.include?(char)
+    # return print char if is_numeric? && !is_quoted? # preserves numbers
+    # return if !is_quoted? && !CONTROL_CHARS.include?(char)
 
-    if is_escaped
+    if is_escaped?
       escape(char)
-    elsif !is_escaped && !is_quoted
+    elsif !is_escaped? && !is_quoted?
       if (OPEN_CHARS + [COMMA]).include? char
         print char
         print NEWLINE
@@ -120,9 +123,13 @@ begin
         :is_quoted => is_quoted
       })
 
+      # these variables are set now to determine
+      # the state of the _next_ charater.
       if char.is_backslash?
         is_escaped = true
         next
+      else
+        is_escaped = false
       end
 
       if char.is_quote?
@@ -133,7 +140,6 @@ begin
       num_tabs -= 1 if char.is_closed?
 
       char.print_with num_tabs
-      is_escaped = false
     end
 
     print JSONChar::NEWLINE
