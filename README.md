@@ -12,7 +12,7 @@ Since it takes data as a stream, it's harder to make sure that all special non-q
 
 It will not corrupt valid JSON - just reformat it. The printer will suppress printing non-quoted whitespace.
 
-I gladly except pull requests!
+I gladly accept pull requests!
 
 And, as always, use at your own risk.
 
