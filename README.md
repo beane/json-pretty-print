@@ -1,3 +1,5 @@
+### Deprecated in favor of https://github.com/beane/json_pretty_printer_shell 
+
 ### JSON Pretty Printer
 :-)
 
